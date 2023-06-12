@@ -1,0 +1,55 @@
+{
+  "name": "@web-widget/web-server",
+  "type": "module",
+  "exports": {
+    "./server": {
+      "types": "./dist/server/mod.d.ts",
+      "default": "./dist/server/mod.js"
+    },
+    "./client": {
+      "types": "./dist/client/mod.d.ts",
+      "default": "./dist/client/mod.js"
+    },
+    "./runtime/html": {
+      "types": "./dist/runtime/html/mod.server.d.ts",
+      "browser": "./dist/runtime/html/mod.client.js",
+      "default": "./dist/runtime/html/mod.server.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && rm -rf tsconfig.tsbuildinfo && pnpm exec tsc && echo 'done'",
+    "build:watch": "pnpm exec tsc --watch --incremental",
+    "build:examples": "cd examples/counter && pnpm exec tsc"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "runtime",
+    "src",
+    "server.ts",
+    "client.ts"
+  ],
+  "dependencies": {
+    "@babel/helper-plugin-utils": "^7.22.5",
+    "@babel/core": "^7.22.5",
+    "@babel/traverse": "^7.22.5",
+    "@web-widget/web-widget": "workspace:*",
+    "@worker-tools/html": "^2.0.0-pre.12",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/babel__helper-plugin-utils": "^7.10.0",
+    "@types/babel__core": "^7.20.1",
+    "@types/babel__traverse": "^7.20.1",
+    "@types/react": "^18.2.9",
+    "@types/react-dom": "^18.0.6",
+    "jspm": "^3.0.1",
+    "typescript": "^5.0.4",
+    "urlpattern-polyfill": "^9.0.0",
+    "@web-widget/web-server": "workspace:*",
+    "tsup": "^6.7.0"
+  }
+}

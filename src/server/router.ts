@@ -1,6 +1,8 @@
-import type { ConnInfo } from "./deps.ts";
+/// <reference types="urlpattern-polyfill" />
 
-type HandlerContext<T = unknown> = T & ConnInfo;
+import type { ServerConnInfo } from "./types.js";
+
+type HandlerContext<T = unknown> = T & ServerConnInfo;
 
 export type Handler<T = unknown> = (
   req: Request,
@@ -33,16 +35,14 @@ export type MatchHandler<T = unknown> = (
   match: Record<string, string>,
 ) => Response | Promise<Response>;
 
-// deno-lint-ignore ban-types
 export interface Routes<T = {}> {
   [key: string]: { [K in KnownMethod | "default"]?: MatchHandler<T> };
 }
 
-export type DestinationKind = "internal" | "static" | "route" | "notFound";
+export type DestinationKind = "internal" | "route" | "notFound";
 
-// deno-lint-ignore ban-types
 export type InternalRoute<T = {}> = {
-  pattern: URLPattern;
+  pathname: URLPattern;
   methods: { [K in KnownMethod]?: MatchHandler<T> };
   default?: MatchHandler<T>;
   destination: DestinationKind;
@@ -50,7 +50,6 @@ export type InternalRoute<T = {}> = {
 
 export interface RouterOptions<T> {
   internalRoutes: Routes<T>;
-  staticRoutes: Routes<T>;
   routes: Routes<T>;
   otherHandler: Handler<T>;
   errorHandler: ErrorHandler<T>;
@@ -107,7 +106,7 @@ function processRoutes<T>(
 ) {
   for (const [path, methods] of Object.entries(routes)) {
     const entry: InternalRoute<T> = {
-      pattern: new URLPattern({ pathname: path }),
+      pathname: new URLPattern({ pathname: path }),
       methods: {},
       default: undefined,
       destination,
@@ -128,7 +127,6 @@ function processRoutes<T>(
 export function router<T = unknown>(
   {
     internalRoutes,
-    staticRoutes,
     routes,
     otherHandler,
     unknownMethodHandler,
@@ -138,12 +136,11 @@ export function router<T = unknown>(
 
   const processedRoutes: InternalRoute<T>[] = [];
   processRoutes(processedRoutes, internalRoutes, "internal");
-  processRoutes(processedRoutes, staticRoutes, "static");
   processRoutes(processedRoutes, routes, "route");
 
   return (req, ctx) => {
     for (const route of processedRoutes) {
-      const res = route.pattern.exec(req.url);
+      const res = route.pathname.exec(req.url);
 
       if (res !== null) {
         const groups: Record<string, string> = {};

@@ -1,0 +1,16 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*_test.*", "src/dev/**/*", "tsup.config.ts"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+    "composite": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "skipLibCheck": true
+  }
+}

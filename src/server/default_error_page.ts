@@ -1,8 +1,14 @@
-import { h } from "preact";
-import { DEBUG } from "./constants.ts";
-import type { ErrorPageProps } from "./types.ts";
+import { DEBUG } from "./constants.js";
+import type { ErrorComponentProps, RenderResult } from "./types.js";
+import { html, HTMLResponse } from "./html.js";
 
-export default function DefaultErrorPage(props: ErrorPageProps) {
+export { render } from '../runtime/html/mod.server.js';
+
+function style(style: Record<string, string | number>) {
+  return Object.entries(style).map(([k, v]) => `${k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}:${v}`).join(';')
+}
+
+export default function DefaultErrorPage(props: ErrorComponentProps) {
   const { error } = props;
 
   let message = undefined;
@@ -14,46 +20,36 @@ export default function DefaultErrorPage(props: ErrorPageProps) {
     }
   }
 
-  return h(
-    "div",
-    {
-      class: "frsh-error-page",
-      style: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      },
-    },
-    h(
-      "div",
-      {
-        style: {
-          border: "#f3f4f6 2px solid",
-          borderTop: "red 4px solid",
-          background: "#f9fafb",
-          margin: 16,
-          minWidth: "300px",
-          width: "50%",
-        },
-      },
-      h("p", {
-        style: {
-          margin: 0,
-          fontSize: "12pt",
-          padding: 16,
-          fontFamily: "sans-serif",
-        },
-      }, "An error occurred during route handling or page rendering."),
-      message && h("pre", {
-        style: {
-          margin: 0,
-          fontSize: "12pt",
-          overflowY: "auto",
-          padding: 16,
-          paddingTop: 0,
-          fontFamily: "monospace",
-        },
-      }, message),
-    ),
-  );
+  return html`
+    <div style="${style({
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          })}">
+      <div style="${style({
+              border: "#f3f4f6 2px solid",
+              borderTop: "red 4px solid",
+              background: "#f9fafb",
+              margin: 16,
+              minWidth: "300px",
+              width: "50%",
+      })}">
+        <p style="${style({
+              margin: 0,
+              fontSize: "12pt",
+              padding: 16,
+              fontFamily: "sans-serif",
+        })}">
+          An error occurred during route handling or page rendering.
+        </p>
+        ${message ? html`<pre style="${style({
+              margin: 0,
+              fontSize: "12pt",
+              overflowY: "auto",
+              padding: 16,
+              paddingTop: 0,
+              fontFamily: "monospace",
+            })}">${message}</pre>`: ``}
+      </div>
+    </div>`;
 }
