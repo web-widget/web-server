@@ -1,1 +1,1 @@
-import '@web-widget/web-widget';
+export * from "@web-widget/web-widget";

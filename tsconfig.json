@@ -1,6 +1,6 @@
 {
   "include": ["src/**/*"],
-  "exclude": ["src/**/*_test.*", "src/dev/**/*", "tsup.config.ts"],
+  "exclude": ["src/dev/**/*", "tsup.config.ts", "node_modules"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",

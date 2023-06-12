@@ -53,11 +53,11 @@ export class ServerContext {
   /**
    * Process the manifest into individual components and pages.
    */
-  static async fromManifest(
+  static fromManifest(
     manifest: Manifest,
     opts: WebServerOptions,
     dev: boolean
-  ): Promise<ServerContext> {
+  ): ServerContext {
     // Extract all routes, and prepare them into the `Page` structure.
     const routes: Route[] = [];
     const middlewares: MiddlewareRoute[] = [];

@@ -6,8 +6,8 @@ import {
 } from "./types";
 export type * from "./types";
 
-export async function router(manifest: Manifest, opts: StartOptions = {}) {
-  const ctx = await ServerContext.fromManifest(manifest, opts, !!opts.dev);
+export default function router(manifest: Manifest, opts: StartOptions = {}) {
+  const ctx = ServerContext.fromManifest(manifest, opts, !!opts.dev);
   const handler = ctx.handler();
   return {
     handler,
