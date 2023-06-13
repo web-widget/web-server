@@ -112,6 +112,11 @@ export interface RenderContext<Data = any> {
   container?: Element;
 
   /**
+   * This is the flag for client hydration mode.
+   */
+  recovering?: boolean;
+
+  /**
    * This is a component of the UI framework.
    */
   component?: any;
