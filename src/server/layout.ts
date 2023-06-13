@@ -72,7 +72,7 @@ function AppMeta(meta: Meta[]) {
 }
 
 export interface TemplateOptions {
-  body: RenderResult;
+  outlet: RenderResult;
   clientEntry: string;
   esModulePolyfillUrl?: string;
   importmap: Record<string, any>;
@@ -91,12 +91,11 @@ export function template(opts: TemplateOptions): HTML {
         ${unsafeHTML(htmlEscapeJsonString(JSON.stringify(opts.importmap)))}
       </script>
       ${AppMeta(opts.meta)}
-      ${opts.moduleScripts.map(([src, nonce]) => html`<script src="${src}" nonce=${nonce} type: "module"></script>`)}
+      ${opts.moduleScripts.map(([src, nonce]) => html`<script src="${src}" nonce=${nonce} type="module"></script>`)}
     </head>
     <body>
-      ${streamToHTML(opts.body as ReadableStream<string>)}
+      ${streamToHTML(opts.outlet as ReadableStream<string>)}
       <script>
-        const __clientEntry = ${JSON.stringify(opts.clientEntry)};
         /* Polyfill: Declarative Shadow DOM */
         (function attachShadowRoots(root) {
           root.querySelectorAll('template[shadowroot]').forEach(template => {
@@ -127,23 +126,28 @@ export function template(opts: TemplateOptions): HTML {
           });
         })(document);
 
-        if (
-          !HTMLScriptElement.supports ||
-          !HTMLScriptElement.supports('importmap')
-        ) {
-          document.head.appendChild(
-            Object.assign(document.createElement('script'), {
-              src: ${JSON.stringify(opts.esModulePolyfillUrl)},
-              crossorigin: 'anonymous',
-              async: true,
-              onload() {
-                importShim(__clientEntry});
-              }
-            })
-          );
-        } else {
-          import(__clientEntry});
-        }
+        (function(bootstrap, esModulePolyfill) {
+          if (
+            !HTMLScriptElement.supports ||
+            !HTMLScriptElement.supports('importmap')
+          ) {
+            document.head.appendChild(
+              Object.assign(document.createElement('script'), {
+                src: esModulePolyfill,
+                crossorigin: 'anonymous',
+                async: true,
+                onload() {
+                  importShim(bootstrap});
+                }
+              })
+            );
+          } else {
+            import(bootstrap});
+          }
+        })(
+          ${JSON.stringify(opts.clientEntry)},
+          ${JSON.stringify(opts.esModulePolyfillUrl)}
+        );
       </script>
     </body>
   </html>`;

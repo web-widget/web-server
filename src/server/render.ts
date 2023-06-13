@@ -114,7 +114,7 @@ export async function internalRender<Data>(
     csp.reportOnly = newCsp.reportOnly;
   }
 
-  let body: RenderResult | null = null;
+  let outlet: RenderResult | null = null;
   await renderPage(ctx, async () => {
     const renderContext: RenderContext<any> = {
       url: opts.url,
@@ -124,11 +124,11 @@ export async function internalRender<Data>(
       component: opts.route.component,
       error: opts.error,
     };
-    body = await opts.route.render(renderContext);
-    return body;
+    outlet = await opts.route.render(renderContext);
+    return outlet;
   });
 
-  if (!body) {
+  if (!outlet) {
     throw new Error(
       `The 'render' function was not called by route's render hook.`,
     );
@@ -147,7 +147,7 @@ export async function internalRender<Data>(
     moduleScripts.push([url, randomNonce]);
   }
   const html = template({
-    body,
+    outlet,
     // TODO
     clientEntry: "",
     // TODO
@@ -156,6 +156,7 @@ export async function internalRender<Data>(
     esModulePolyfillUrl: "",
     // TODO
     importmap: {},
+    // TODO
     moduleScripts,
     lang: ctx.lang,
   });
