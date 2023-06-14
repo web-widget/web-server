@@ -158,6 +158,8 @@ export async function internalRender<Data>(
     importmap: {},
     // TODO
     moduleScripts,
+    // TODO
+    styles: [],
     lang: ctx.lang,
   });
 

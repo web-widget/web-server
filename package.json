@@ -33,7 +33,7 @@
   ],
   "dependencies": {
     "@web-widget/web-widget": "workspace:*",
-    "@worker-tools/html": "^2.0.0-pre.12",
+    "@worker-tools/html": "^2.0.0-pre.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

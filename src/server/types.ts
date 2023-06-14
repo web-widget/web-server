@@ -149,7 +149,6 @@ export type Meta =
   | { property: string; content: string }
   | { httpEquiv: string; content: string }
   | { "script:ld+json": LdJsonObject }
-  | { style: string }
   | { tagName: "meta" | "link"; [name: string]: string }
   | { [name: string]: unknown };
 

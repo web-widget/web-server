@@ -57,10 +57,6 @@ function AppMeta(meta: Meta[]) {
       );
     }
 
-    if ("style" in metaProps) {
-      return html`<style>${metaProps.style}</style>`;
-    }
-
     return html
       `<meta ${unsafeHTML(Object.entries(metaProps)
         .map(
@@ -79,6 +75,7 @@ export interface TemplateOptions {
   lang: string;
   meta: Meta[];
   moduleScripts: (readonly [string, string])[];
+  styles: string[];
 }
 
 export function template(opts: TemplateOptions): HTML {
@@ -87,10 +84,11 @@ export function template(opts: TemplateOptions): HTML {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      ${AppMeta(opts.meta)}
       <script type="importmap">
         ${unsafeHTML(htmlEscapeJsonString(JSON.stringify(opts.importmap)))}
       </script>
-      ${AppMeta(opts.meta)}
+      ${opts.styles.map(style => html`<style>${style}</style>`)}
       ${opts.moduleScripts.map(([src, nonce]) => html`<script src="${src}" nonce=${nonce} type="module"></script>`)}
     </head>
     <body>
@@ -126,7 +124,7 @@ export function template(opts: TemplateOptions): HTML {
           });
         })(document);
 
-        (function(bootstrap, esModulePolyfill) {
+        (function esmLoader(bootstrap, esModulePolyfill) {
           if (
             !HTMLScriptElement.supports ||
             !HTMLScriptElement.supports('importmap')
@@ -137,16 +135,16 @@ export function template(opts: TemplateOptions): HTML {
                 crossorigin: 'anonymous',
                 async: true,
                 onload() {
-                  importShim(bootstrap});
+                  importShim(bootstrap);
                 }
               })
             );
           } else {
-            import(bootstrap});
+            import(bootstrap);
           }
         })(
-          ${JSON.stringify(opts.clientEntry)},
-          ${JSON.stringify(opts.esModulePolyfillUrl)}
+          ${unsafeHTML(JSON.stringify(opts.clientEntry))},
+          ${unsafeHTML(JSON.stringify(opts.esModulePolyfillUrl))}
         );
       </script>
     </body>
