@@ -1,8 +1,8 @@
 import { DEBUG } from "./constants.js";
-import type { ErrorComponentProps, RenderResult } from "./types.js";
-import { html, HTMLResponse } from "./html.js";
+import type { ErrorComponentProps } from "./types.js";
+import { html } from "./html.js";
 
-export { render } from '../runtime/html/mod.server.js';
+export { render } from "./html.js";
 
 function style(style: Record<string, string | number>) {
   return Object.entries(style).map(([k, v]) => `${k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}:${v}`).join(';')

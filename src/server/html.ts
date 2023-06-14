@@ -1,5 +1,7 @@
-import { unsafeHTML } from '@worker-tools/html';
-export * from '@worker-tools/html';
+import { unsafeHTML, HTML, HTMLResponse } from '@worker-tools/html';
+import { RenderContext, RenderResult, ComponentProps, UnknownComponentProps, ErrorComponentProps } from "./types.js";
+
+export * from "@worker-tools/html";
 
 export const streamToHTML = (stream: ReadableStream) => async function* () {
   // TODO 这样处理流是否正确？
@@ -27,3 +29,32 @@ export function htmlEscapeJsonString(str: string): string {
 
 export const unsafeAttributeName = (value: string) => value.replace(/([A-Z])/g, '-$1').toLowerCase();
 export const unsafeAttributeValue = (value: string) => value.replace(/"/g, '&quot;');
+
+export async function render(opts: RenderContext<unknown>): Promise<RenderResult> {
+
+  if (opts.component === undefined) {
+    throw new Error("This page does not have a component to render.");
+  }
+
+  if (
+    typeof opts.component === "function" &&
+    opts.component.constructor.name === "AsyncFunction"
+  ) {
+    throw new Error(
+      "Async components are not supported.",
+    );
+  }
+
+  const props: ComponentProps<any> | UnknownComponentProps | ErrorComponentProps = {
+    params: opts.params,
+    url: opts.url,
+    route: opts.route,
+    data: opts.data,
+    error: opts.error
+  };
+
+  const content: HTML = opts.component(props);
+  const res = new HTMLResponse(content);
+
+  return res.body || "";
+}

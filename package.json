@@ -13,11 +13,6 @@
     "./client": {
       "types": "./dist/client/mod.d.ts",
       "default": "./dist/client/mod.js"
-    },
-    "./runtime/html": {
-      "types": "./dist/runtime/html/mod.server.d.ts",
-      "browser": "./dist/runtime/html/mod.client.js",
-      "default": "./dist/runtime/html/mod.server.js"
     }
   },
   "sideEffects": ["./dist/client/mod.js", "./client.ts"],
