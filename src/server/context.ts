@@ -4,7 +4,7 @@ import { Status } from "./http_status.js";
 import * as router from "./router.js";
 import { Manifest, ServerHandler, ServerConnInfo } from "./types.js";
 import { default as DefaultErrorComponent, render as DefaultRender  } from "./default_error_page.js";
-import { HTMLResponse } from "./html.js";
+import { stringStreamToByteStream } from "./html.js";
 import {
   ErrorPage,
   ErrorPageModule,
@@ -290,8 +290,8 @@ export class ServerContext {
               headers["content-security-policy"] = directive;
             }
           }
-          // return new Response(body, { status, headers });
-          return new HTMLResponse(body, {
+
+          return new Response(await stringStreamToByteStream(body), {
             status: options?.status ?? status,
             statusText: options?.statusText,
             headers: options?.headers
