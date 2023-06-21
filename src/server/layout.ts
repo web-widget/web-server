@@ -1,5 +1,7 @@
 import { html, unsafeHTML, HTML, streamToHTML, htmlEscapeJsonString, unsafeAttributeName, unsafeAttributeValue } from "./html.js";
-import { Meta, RenderResult } from "./types.js";
+import { Meta, RenderResult, ComponentProps } from "./types.js";
+
+export { render } from "./html.js";
 
 function isValidMetaTag(tagName: unknown): tagName is "meta" | "link" {
   return typeof tagName === "string" && /^(meta|link)$/.test(tagName);
@@ -67,7 +69,7 @@ function AppMeta(meta: Meta[]) {
   })
 }
 
-export interface TemplateOptions {
+export interface LayoutData {
   outlet: RenderResult;
   clientEntry: string;
   esModulePolyfillUrl?: string;
@@ -78,21 +80,22 @@ export interface TemplateOptions {
   styles: string[];
 }
 
-export function template(opts: TemplateOptions): HTML {
+export default function Layout(props: ComponentProps<LayoutData>): HTML {
+  const data = props.data;
   return html`<!DOCTYPE html>
-  <html lang="${opts.lang}">
+  <html lang="${data.lang}">
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      ${AppMeta(opts.meta)}
+      ${AppMeta(data.meta)}
       <script type="importmap">
-        ${unsafeHTML(htmlEscapeJsonString(JSON.stringify(opts.importmap)))}
+        ${unsafeHTML(htmlEscapeJsonString(JSON.stringify(data.importmap)))}
       </script>
-      ${opts.styles.map(style => html`<style>${style}</style>`)}
-      ${opts.moduleScripts.map(([src, nonce]) => html`<script src="${src}" nonce=${nonce} type="module"></script>`)}
+      ${data.styles.map(style => html`<style>${style}</style>`)}
+      ${data.moduleScripts.map(([src, nonce]) => html`<script src="${src}" nonce=${nonce} type="module"></script>`)}
     </head>
     <body>
-      ${streamToHTML(opts.outlet as ReadableStream<string>)}
+      ${streamToHTML(data.outlet as ReadableStream<string>)}
       <script>
         /* Polyfill: Declarative Shadow DOM */
         (function attachShadowRoots(root) {
@@ -131,16 +134,16 @@ export function template(opts: TemplateOptions): HTML {
         ) {
           document.head.appendChild(
             Object.assign(document.createElement('script'), {
-              src: ${unsafeHTML(JSON.stringify(opts.esModulePolyfillUrl))},
+              src: ${unsafeHTML(JSON.stringify(data.esModulePolyfillUrl))},
               crossorigin: 'anonymous',
               async: true,
               onload() {
-                importShim(${unsafeHTML(JSON.stringify(opts.clientEntry))});
+                importShim(${unsafeHTML(JSON.stringify(data.clientEntry))});
               }
             })
           );
         } else {
-          import(${unsafeHTML(JSON.stringify(opts.clientEntry))});
+          import(${unsafeHTML(JSON.stringify(data.clientEntry))});
         }
       </script>
     </body>

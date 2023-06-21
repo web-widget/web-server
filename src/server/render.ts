@@ -1,5 +1,4 @@
-import { HTML } from "./html.js";
-import { template, TemplateOptions } from "./layout.js";
+import * as layout from "./layout.js";
 import type {
   ErrorPage,
   RenderPage,
@@ -95,7 +94,7 @@ function defaultCsp() {
 export async function internalRender<Data>(
   opts: InnerRenderOptions<Data>,
   renderPage: RenderPage
-): Promise<[HTML, ContentSecurityPolicy | undefined]> {
+): Promise<[RenderResult, ContentSecurityPolicy | undefined]> {
   const csp: ContentSecurityPolicy | undefined = opts.route.csp
     ? defaultCsp()
     : undefined;
@@ -116,7 +115,7 @@ export async function internalRender<Data>(
 
   let outlet: RenderResult | null = null;
   await renderPage(ctx, async () => {
-    const renderContext: RenderContext<any> = {
+    const renderContext: RenderContext = {
       url: opts.url,
       route: opts.route.pathname,
       params: opts.params,
@@ -146,22 +145,31 @@ export async function internalRender<Data>(
     }
     moduleScripts.push([url, randomNonce]);
   }
-  const html = template({
-    outlet,
-    // TODO
-    clientEntry: "@web-widget/web-server/client",
-    // TODO
-    meta: [],
-    // TODO
-    esModulePolyfillUrl: "",
-    // TODO
-    importmap: {},
-    // TODO
-    moduleScripts,
-    // TODO
-    styles: [],
-    lang: ctx.lang,
-  });
+
+  const layoutContext: RenderContext = {
+    url: opts.url,
+    route: opts.route.pathname,
+    params: opts.params,
+    data: {
+      outlet,
+      // TODO
+      clientEntry: "@web-widget/web-server/client",
+      // TODO
+      meta: [],
+      // TODO
+      esModulePolyfillUrl: "",
+      // TODO
+      importmap: {},
+      // TODO
+      moduleScripts,
+      // TODO
+      styles: [],
+      lang: ctx.lang,
+    },
+    component: layout.default,
+    error: null,
+  };
+  const html = await layout.render(layoutContext);
 
   return [html, csp];
 }

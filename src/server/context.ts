@@ -4,7 +4,6 @@ import { Status } from "./http_status.js";
 import * as router from "./router.js";
 import { Manifest, ServerHandler, ServerConnInfo } from "./types.js";
 import { default as DefaultErrorComponent, render as DefaultRender  } from "./default_error_page.js";
-import { stringStreamToByteStream } from "./html.js";
 import {
   ErrorPage,
   ErrorPageModule,
@@ -262,7 +261,7 @@ export class ServerContext {
         return async ({ data }: { data?: any } = {}, options?: ResponseInit) => {
           // const preloads: string[] = [];
 
-          const resp = await internalRender({
+          const [body, csp] = await internalRender({
             route,
             imports,
             url: new URL(req.url),
@@ -275,7 +274,6 @@ export class ServerContext {
             "content-type": "text/html; charset=utf-8",
           };
 
-          const [body, csp] = resp;
           if (csp) {
             if (this.#dev) {
               csp.directives.connectSrc = [
@@ -291,7 +289,7 @@ export class ServerContext {
             }
           }
 
-          return new Response(await stringStreamToByteStream(body), {
+          return new Response(body, {
             status: options?.status ?? status,
             statusText: options?.statusText,
             headers: options?.headers
