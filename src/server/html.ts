@@ -30,6 +30,19 @@ export function htmlEscapeJsonString(str: string): string {
 export const unsafeAttributeName = (value: string) => value.replace(/([A-Z])/g, '-$1').toLowerCase();
 export const unsafeAttributeValue = (value: string) => value.replace(/"/g, '&quot;');
 
+// function iteratorToStream(iterator) {
+//   return new ReadableStream({
+//     async pull(controller) {
+//       const { value, done } = await iterator.next();
+//       if (done) {
+//         controller.close();
+//       } else {
+//         controller.enqueue(value);
+//       }
+//     },
+//   });
+// }
+
 export async function render(opts: RenderContext<unknown>): Promise<RenderResult> {
 
   if (opts.component === undefined) {

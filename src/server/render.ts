@@ -149,7 +149,7 @@ export async function internalRender<Data>(
   const html = template({
     outlet,
     // TODO
-    clientEntry: "",
+    clientEntry: "@web-widget/web-server/client",
     // TODO
     meta: [],
     // TODO

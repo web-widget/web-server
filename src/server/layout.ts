@@ -123,29 +123,25 @@ export function template(opts: TemplateOptions): HTML {
             attachShadowRoots(shadowRoot);
           });
         })(document);
-
-        (function esmLoader(bootstrap, esModulePolyfill) {
-          if (
-            !HTMLScriptElement.supports ||
-            !HTMLScriptElement.supports('importmap')
-          ) {
-            document.head.appendChild(
-              Object.assign(document.createElement('script'), {
-                src: esModulePolyfill,
-                crossorigin: 'anonymous',
-                async: true,
-                onload() {
-                  importShim(bootstrap);
-                }
-              })
-            );
-          } else {
-            import(bootstrap);
-          }
-        })(
-          ${unsafeHTML(JSON.stringify(opts.clientEntry))},
-          ${unsafeHTML(JSON.stringify(opts.esModulePolyfillUrl))}
-        );
+      </script>
+      <script type="module">
+        if (
+          !HTMLScriptElement.supports ||
+          !HTMLScriptElement.supports('importmap')
+        ) {
+          document.head.appendChild(
+            Object.assign(document.createElement('script'), {
+              src: ${unsafeHTML(JSON.stringify(opts.esModulePolyfillUrl))},
+              crossorigin: 'anonymous',
+              async: true,
+              onload() {
+                importShim(${unsafeHTML(JSON.stringify(opts.clientEntry))});
+              }
+            })
+          );
+        } else {
+          import(${unsafeHTML(JSON.stringify(opts.clientEntry))});
+        }
       </script>
     </body>
   </html>`;
