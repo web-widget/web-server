@@ -289,6 +289,10 @@ export class ServerContext {
             }
           }
 
+          if (!body) {
+            throw new Error("The renderer does not return content.");
+          }
+
           return new Response(body, {
             status: options?.status ?? status,
             statusText: options?.statusText,

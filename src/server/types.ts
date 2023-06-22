@@ -77,7 +77,7 @@ export type Handlers<Data = any, State = Record<string, unknown>> = {
   [K in router.KnownMethod]?: Handler<Data, State>;
 }
 
-export interface RenderContext<Data = any> {
+export interface RouteRenderContext<Data = any> {
   /** The URL of the request that resulted in this page being rendered. */
   url: URL;
 
@@ -105,7 +105,29 @@ export interface RenderContext<Data = any> {
    * The error that caused the error page to be loaded.
    */
   error: unknown;
-  
+
+  /**
+   * This is a component of the UI framework.
+   */
+  component?: any;
+}
+
+export interface IslandRenderContext<Data = any> {
+  /**
+   * Props of a component.
+   */
+  data: Data;
+
+  /**
+   * The error that caused the error page to be loaded.
+   */
+  error: unknown;
+
+  /**
+   * This is a component of the UI framework.
+   */
+  component?: any;
+
   /**
    * This is a render container element that exists only on the client side.
    */
@@ -115,16 +137,13 @@ export interface RenderContext<Data = any> {
    * This is the flag for client hydration mode.
    */
   recovering?: boolean;
-
-  /**
-   * This is a component of the UI framework.
-   */
-  component?: any;
 }
+
+export interface RenderContext<Data = any> extends RouteRenderContext<Data>, IslandRenderContext<Data> {};
 
 export type Render<Data = unknown> = (renderContext: RenderContext<Data>) => Promise<RenderResult>;
 
-export type RenderResult = string | ReadableStream;
+export type RenderResult = string | ReadableStream | void;
 
 export interface RouteModule {
   default?: any;

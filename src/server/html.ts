@@ -4,7 +4,7 @@ import { RenderContext, RenderResult, ComponentProps, UnknownComponentProps, Err
 
 export { unsafeHTML, fallback, html, HTML, Fallback };
 
-export const streamToHTML = (stream: ReadableStream) => async function* () {
+export const streamToHTML = (stream: ReadableStream<string>) => async function* () {
   // TODO 这样处理流是否正确？
   // @ts-ignore
   for await (const part of stream) {
@@ -75,13 +75,18 @@ export async function render(opts: RenderContext<unknown>): Promise<RenderResult
     );
   }
 
-  const props: ComponentProps<any> | UnknownComponentProps | ErrorComponentProps = {
+  if (opts.container) {
+    throw new Error("Client rendering is not supported.");
+  }
+
+  const isIsland = !opts.url;
+  const props = isIsland ? opts.data : {
     params: opts.params,
     url: opts.url,
     route: opts.route,
     data: opts.data,
     error: opts.error
-  };
+  } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps;
 
   return stringStreamToByteStream(opts.component(props));
 }
