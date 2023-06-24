@@ -157,7 +157,7 @@ export async function internalRender<Data>(
       // TODO
       meta: [],
       // TODO
-      esModulePolyfillUrl: "",
+      esModulePolyfillUrl: "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
       // TODO
       importmap: {},
       // TODO

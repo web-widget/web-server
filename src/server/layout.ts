@@ -95,7 +95,7 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
       ${data.moduleScripts.map(([src, nonce]) => html`<script src="${src}" nonce=${nonce} type="module"></script>`)}
     </head>
     <body>
-      ${streamToHTML(data.outlet as ReadableStream<string>)}
+      ${typeof data.outlet === 'string' ? data.outlet : streamToHTML(data.outlet as ReadableStream<string>)}
       <script>
         /* Polyfill: Declarative Shadow DOM */
         (function attachShadowRoots(root) {
@@ -127,25 +127,42 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
           });
         })(document);
       </script>
-      <script type="module">
+      <script>
+        /* Polyfill: ES Module */
         if (
           !HTMLScriptElement.supports ||
           !HTMLScriptElement.supports('importmap')
         ) {
-          document.head.appendChild(
-            Object.assign(document.createElement('script'), {
-              src: ${unsafeHTML(JSON.stringify(data.esModulePolyfillUrl))},
-              crossorigin: 'anonymous',
-              async: true,
-              onload() {
-                importShim(${unsafeHTML(JSON.stringify(data.clientEntry))});
-              }
-            })
-          );
-        } else {
-          import(${unsafeHTML(JSON.stringify(data.clientEntry))});
+          window.importShim = (function(src) {
+            const promise = new Promise((resolve, reject) => {
+              document.head.appendChild(
+                Object.assign(document.createElement('script'), {
+                  src,
+                  crossorigin: 'anonymous',
+                  async: true,
+                  onload() {
+                    if (importShim !== importShimProxy) {
+                      resolve(importShim);
+                    } else {
+                      reject(new Error('No self.importShim found:' + src));
+                    }
+                  },
+                  onerror(error) {
+                    reject(error);
+                  }
+                })
+              );
+            });
+            return function importShimProxy() {
+              return promise.then((importShim) => importShim(...arguments));
+            };
+          })(${unsafeHTML(JSON.stringify(data.esModulePolyfillUrl))});
         }
       </script>
+      ${data.clientEntry ? html`<script type="module">
+        const loader = () => import(${unsafeHTML(JSON.stringify(data.clientEntry))});
+        typeof importShim === 'function' ? importShim(loader.toString().match(/\\bimport\\("([^"]*?)"\\)/)[1]) : loader();
+      </script>`: ``}
     </body>
   </html>`;
 }
