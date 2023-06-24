@@ -1,7 +1,7 @@
 /// <reference types="urlpattern-polyfill" />
 
-import * as router from "./router.js";
-import { InnerRenderFunction, InnerRenderContext } from "./render.js";
+import * as router from "./router";
+import { InnerRenderFunction, InnerRenderContext } from "./render";
 
 type JSONValue =
   | string

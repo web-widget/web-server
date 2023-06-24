@@ -1,4 +1,4 @@
-import * as layout from "./default-layout.js";
+import * as layout from "./default-layout";
 import type {
   ErrorPage,
   RenderPage,
@@ -7,7 +7,7 @@ import type {
   RenderResult,
   RenderContext,
 } from "./types";
-import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp.js";
+import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
   route: Route<Data> | UnknownPage | ErrorPage;

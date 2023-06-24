@@ -1,5 +1,5 @@
-import { ServerContext } from "./context.js";
-export { Status } from "./status.js";
+import { ServerContext } from "./context";
+export { Status } from "./status";
 import { StartOptions, Manifest } from "./types";
 export type * from "./types";
 

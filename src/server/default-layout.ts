@@ -6,10 +6,10 @@ import {
   htmlEscapeJsonString,
   unsafeAttributeName,
   unsafeAttributeValue,
-} from "./html.js";
-import { Meta, RenderResult, ComponentProps } from "./types.js";
+} from "./html";
+import { Meta, RenderResult, ComponentProps } from "./types";
 
-export { render } from "./html.js";
+export { render } from "./html";
 
 function isValidMetaTag(tagName: unknown): tagName is "meta" | "link" {
   return typeof tagName === "string" && /^(meta|link)$/.test(tagName);

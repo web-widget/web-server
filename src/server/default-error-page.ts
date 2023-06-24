@@ -1,8 +1,8 @@
-import { DEBUG } from "./constants.js";
-import type { ErrorComponentProps } from "./types.js";
-import { html } from "./html.js";
+import { DEBUG } from "./constants";
+import type { ErrorComponentProps } from "./types";
+import { html } from "./html";
 
-export { render } from "./html.js";
+export { render } from "./html";
 
 function style(style: Record<string, string | number>) {
   return Object.entries(style)

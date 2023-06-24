@@ -9,7 +9,7 @@ import {
   ComponentProps,
   UnknownComponentProps,
   ErrorComponentProps,
-} from "./types.js";
+} from "./types";
 
 export { unsafeHTML, fallback, html, HTML, Fallback };
 

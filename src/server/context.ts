@@ -1,12 +1,12 @@
 /// <reference types="urlpattern-polyfill" />
 
-import { Status } from "./status.js";
-import * as router from "./router.js";
-import { Manifest, ServerHandler, ServerConnInfo } from "./types.js";
+import { Status } from "./status";
+import * as router from "./router";
+import { Manifest, ServerHandler, ServerConnInfo } from "./types";
 import {
   default as DefaultErrorComponent,
   render as DefaultRender,
-} from "./default-error-page.js";
+} from "./default-error-page";
 import {
   ErrorPage,
   ErrorPageModule,
@@ -21,9 +21,9 @@ import {
   RouteModule,
   UnknownPage,
   UnknownPageModule,
-} from "./types.js";
-import { internalRender } from "./render.js";
-import { ContentSecurityPolicyDirectives, SELF } from "./csp.js";
+} from "./types";
+import { internalRender } from "./render";
+import { ContentSecurityPolicyDirectives, SELF } from "./csp";
 interface RouterState {
   state: Record<string, unknown>;
 }

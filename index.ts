@@ -1,2 +1,2 @@
-export * from "./src/server/mod.js";
-export { default } from "./src/server/mod.js";
+export * from "./src/server/mod";
+export { default } from "./src/server/mod";
