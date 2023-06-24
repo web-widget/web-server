@@ -44,9 +44,10 @@ export type Render<Data = unknown> = (
 ) => Promise<RenderResult>;
 
 export type RenderResult = void | {
-  bootstrap?: () => Promise<void>;
-  mount?: () => Promise<void>;
-  update?: ({ data }: { data: any }) => Promise<void>;
-  unmount?: () => Promise<void>;
-  unload?: () => Promise<void>;
+  bootstrap?: () => void | Promise<void>;
+  mount?: () => void | Promise<void>;
+  // <Experimental>
+  update?: ({ data }: { data: any }) => void | Promise<void>;
+  unmount?: () => void | Promise<void>;
+  unload?: () => void | Promise<void>;
 };
