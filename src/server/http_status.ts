@@ -308,7 +308,7 @@ export type ErrorStatus = ClientErrorStatus | ServerErrorStatus;
 
 /** A type guard that determines if the status code is informational. */
 export function isInformationalStatus(
-  status: Status,
+  status: Status
 ): status is InformationalStatus {
   return status >= 100 && status < 200;
 }
@@ -325,14 +325,14 @@ export function isRedirectStatus(status: Status): status is RedirectStatus {
 
 /** A type guard that determines if the status code is a client error. */
 export function isClientErrorStatus(
-  status: Status,
+  status: Status
 ): status is ClientErrorStatus {
   return status >= 400 && status < 500;
 }
 
 /** A type guard that determines if the status code is a server error. */
 export function isServerErrorStatus(
-  status: Status,
+  status: Status
 ): status is ServerErrorStatus {
   return status >= 500 && status < 600;
 }

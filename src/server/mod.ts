@@ -1,9 +1,6 @@
 import { ServerContext } from "./context.js";
 export { Status } from "./http_status.js";
-import {
-  StartOptions,
-  Manifest
-} from "./types";
+import { StartOptions, Manifest } from "./types";
 export type * from "./types";
 
 export default function router(manifest: Manifest, opts: StartOptions = {}) {
@@ -15,8 +12,8 @@ export default function router(manifest: Manifest, opts: StartOptions = {}) {
      * Implements the (ancient) event listener object interface to allow passing to fetch event directly,
      * e.g. `self.addEventListener('fetch', router(manifest))`.
      */
-    handleEvent(event: FetchEvent) {      
+    handleEvent(event: FetchEvent) {
       event.respondWith(handler(event.request, {}));
-    }
-  }
+    },
+  };
 }

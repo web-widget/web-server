@@ -3,7 +3,10 @@
 import { Status } from "./http_status.js";
 import * as router from "./router.js";
 import { Manifest, ServerHandler, ServerConnInfo } from "./types.js";
-import { default as DefaultErrorComponent, render as DefaultRender  } from "./default_error_page.js";
+import {
+  default as DefaultErrorComponent,
+  render as DefaultRender,
+} from "./default_error_page.js";
 import {
   ErrorPage,
   ErrorPageModule,
@@ -39,7 +42,7 @@ export class ServerContext {
     middlewares: MiddlewareRoute[],
     notFound: UnknownPage,
     error: ErrorPage,
-    dev: boolean,
+    dev: boolean
   ) {
     this.#routes = routes;
     this.#renderPage = renderPage;
@@ -68,12 +71,14 @@ export class ServerContext {
       handler ??= {};
       if (
         component &&
-        typeof handler === "object" && handler.GET === undefined
+        typeof handler === "object" &&
+        handler.GET === undefined
       ) {
         handler.GET = (_req, { render }) => render({});
       }
       if (
-        typeof handler === "object" && handler.GET !== undefined &&
+        typeof handler === "object" &&
+        handler.GET !== undefined &&
         handler.HEAD === undefined
       ) {
         const GET = handler.GET;
@@ -88,12 +93,14 @@ export class ServerContext {
         };
       }
       const route: Route = {
-        pathname: config?.routeOverride ? String(config.routeOverride) : pathname,
+        pathname: config?.routeOverride
+          ? String(config.routeOverride)
+          : pathname,
         name,
         component,
         handler,
         render,
-        csp: Boolean(config?.csp ?? false)
+        csp: Boolean(config?.csp ?? false),
       };
       routes.push(route);
     }
@@ -101,12 +108,16 @@ export class ServerContext {
       middlewares.push({
         pathname,
         compiledPattern: new URLPattern({ pathname }),
-        ...module as MiddlewareModule,
+        ...(module as MiddlewareModule),
       });
     }
     if (manifest.notFound) {
       const { pathname, name, file, module } = manifest.notFound;
-      const { default: component, render, config } = module as UnknownPageModule;
+      const {
+        default: component,
+        render,
+        config,
+      } = module as UnknownPageModule;
       let { handler } = module as UnknownPageModule;
       if (component && handler === undefined) {
         handler = (_req, { render }) => render();
@@ -133,7 +144,8 @@ export class ServerContext {
         pathname,
         name,
         component,
-        handler: handler ??
+        handler:
+          handler ??
           ((req, ctx) => router.defaultErrorHandler(req, ctx, ctx.error)),
         render,
         csp: Boolean(config?.csp ?? false),
@@ -159,9 +171,12 @@ export class ServerContext {
     const inner = router.router<RouterState>(handlers);
     const withMiddlewares = this.#composeMiddlewares(
       this.#middlewares,
-      handlers.errorHandler,
+      handlers.errorHandler
     );
-    return async function handler(req: Request, connInfo: ServerConnInfo = {}): Promise<Response> {
+    return async function handler(
+      req: Request,
+      connInfo: ServerConnInfo = {}
+    ): Promise<Response> {
       // Redirect requests that end with a trailing slash to their non-trailing
       // slash counterpart.
       // Ex: /about/ -> /about
@@ -186,12 +201,12 @@ export class ServerContext {
    */
   #composeMiddlewares(
     middlewares: MiddlewareRoute[],
-    errorHandler: router.ErrorHandler<RouterState>,
+    errorHandler: router.ErrorHandler<RouterState>
   ) {
     return (
       req: Request,
       connInfo: ServerConnInfo,
-      inner: router.FinalHandler<RouterState>,
+      inner: router.FinalHandler<RouterState>
     ) => {
       // identify middlewares to apply, if any.
       // middlewares should be already sorted from deepest to shallow layer
@@ -224,10 +239,7 @@ export class ServerContext {
         ...connInfo,
         state: middlewareCtx.state,
       };
-      const { destination, handler } = inner(
-        req,
-        ctx,
-      );
+      const { destination, handler } = inner(req, ctx);
       handlers.push(handler);
       middlewareCtx.destination = destination;
       return middlewareCtx.next().catch((e) => errorHandler(req, ctx, e));
@@ -250,25 +262,31 @@ export class ServerContext {
 
     const genRender = <Data = undefined>(
       route: Route<Data> | UnknownPage | ErrorPage,
-      status: number,
+      status: number
     ) => {
       const imports: string[] = [];
       return (
         req: Request,
         params: Record<string, string>,
-        error?: unknown,
+        error?: unknown
       ) => {
-        return async ({ data }: { data?: any } = {}, options?: ResponseInit) => {
+        return async (
+          { data }: { data?: any } = {},
+          options?: ResponseInit
+        ) => {
           // const preloads: string[] = [];
 
-          const [body, csp] = await internalRender({
-            route,
-            imports,
-            url: new URL(req.url),
-            params,
-            data,
-            error,
-          }, this.#renderPage);
+          const [body, csp] = await internalRender(
+            {
+              route,
+              imports,
+              url: new URL(req.url),
+              params,
+              data,
+              error,
+            },
+            this.#renderPage
+          );
 
           const headers: Record<string, string> = {
             "content-type": "text/html; charset=utf-8",
@@ -324,7 +342,7 @@ export class ServerContext {
           routes[route.pathname][method as router.KnownMethod] = (
             req,
             ctx,
-            params,
+            params
           ) =>
             handler(req, {
               ...ctx,
@@ -336,40 +354,31 @@ export class ServerContext {
       }
     }
 
-    const otherHandler: router.Handler<RouterState> = (
-      req,
-      ctx,
-    ) =>
-      this.#notFound.handler(
-        req,
-        {
-          ...ctx,
-          render: createUnknownRender(req, {}),
-        },
-      );
+    const otherHandler: router.Handler<RouterState> = (req, ctx) =>
+      this.#notFound.handler(req, {
+        ...ctx,
+        render: createUnknownRender(req, {}),
+      });
 
     const errorHandlerRender = genRender(
       this.#error,
-      Status.InternalServerError,
+      Status.InternalServerError
     );
     const errorHandler: router.ErrorHandler<RouterState> = (
       req,
       ctx,
-      error,
+      error
     ) => {
       console.error(
         "%cAn error occurred during route handling or page rendering.",
         "color:red",
+        error
+      );
+      return this.#error.handler(req, {
+        ...ctx,
         error,
-      );
-      return this.#error.handler(
-        req,
-        {
-          ...ctx,
-          error,
-          render: errorHandlerRender(req, {}, error),
-        },
-      );
+        render: errorHandlerRender(req, {}, error),
+      });
     };
 
     return { internalRoutes, routes, otherHandler, errorHandler };

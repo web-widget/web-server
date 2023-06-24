@@ -6,7 +6,7 @@ import { InnerRenderFunction, InnerRenderContext } from "./render.js";
 // --- APPLICATION CONFIGURATION ---
 
 export type StartOptions = WebServerOptions & {
-  dev?: boolean
+  dev?: boolean;
 };
 
 export interface WebServerOptions {
@@ -15,7 +15,7 @@ export interface WebServerOptions {
 
 export type RenderPage = (
   ctx: InnerRenderContext,
-  render: InnerRenderFunction,
+  render: InnerRenderFunction
 ) => void | Promise<void>;
 
 /// --- ROUTES ---
@@ -63,19 +63,19 @@ export interface RouteConfig {
 export interface HandlerContext<Data = unknown, State = Record<string, unknown>>
   extends ServerConnInfo {
   params: Record<string, string>;
-  render: ({ data }: { data?: Data; }) => Response | Promise<Response>;
+  render: ({ data }: { data?: Data }) => Response | Promise<Response>;
   renderNotFound: () => Response | Promise<Response>;
   state: State;
 }
 
 export type Handler<Data = any, State = Record<string, unknown>> = (
   req: Request,
-  ctx: HandlerContext<Data, State>,
+  ctx: HandlerContext<Data, State>
 ) => Response | Promise<Response>;
 
 export type Handlers<Data = any, State = Record<string, unknown>> = {
   [K in router.KnownMethod]?: Handler<Data, State>;
-}
+};
 
 export interface RouteRenderContext<Data = any> {
   /** The URL of the request that resulted in this page being rendered. */
@@ -139,9 +139,13 @@ export interface IslandRenderContext<Data = any> {
   recovering?: boolean;
 }
 
-export interface RenderContext<Data = any> extends RouteRenderContext<Data>, IslandRenderContext<Data> {};
+export interface RenderContext<Data = any>
+  extends RouteRenderContext<Data>,
+    IslandRenderContext<Data> {}
 
-export type Render<Data = unknown> = (renderContext: RenderContext<Data>) => Promise<RenderResult>;
+export type Render<Data = unknown> = (
+  renderContext: RenderContext<Data>
+) => Promise<RenderResult>;
 
 export type RenderResult = string | ReadableStream | void;
 
@@ -174,9 +178,9 @@ export type Meta =
 type LdJsonObject = { [Key in string]: LdJsonValue } & {
   [Key in string]?: LdJsonValue | undefined;
 };
-type LdJsonArray = LdJsonValue[] | readonly LdJsonValue[]
-type LdJsonPrimitive = string | number | boolean | null
-type LdJsonValue = LdJsonPrimitive | LdJsonObject | LdJsonArray
+type LdJsonArray = LdJsonValue[] | readonly LdJsonValue[];
+type LdJsonPrimitive = string | number | boolean | null;
+type LdJsonValue = LdJsonPrimitive | LdJsonObject | LdJsonArray;
 
 // --- UNKNOWN PAGE ---
 
@@ -197,7 +201,7 @@ export interface UnknownHandlerContext<State = Record<string, unknown>>
 
 export type UnknownHandler = (
   req: Request,
-  ctx: UnknownHandlerContext,
+  ctx: UnknownHandlerContext
 ) => Response | Promise<Response>;
 
 export interface UnknownPageModule {
@@ -238,7 +242,7 @@ export interface ErrorHandlerContext<State = Record<string, unknown>>
 }
 export type ErrorHandler = (
   req: Request,
-  ctx: ErrorHandlerContext,
+  ctx: ErrorHandlerContext
 ) => Response | Promise<Response>;
 
 export interface ErrorPageModule {
@@ -279,7 +283,7 @@ export interface MiddlewareRoute extends Middleware {
 
 export type MiddlewareHandler<State = Record<string, unknown>> = (
   req: Request,
-  ctx: MiddlewareHandlerContext<State>,
+  ctx: MiddlewareHandlerContext<State>
 ) => Response | Promise<Response>;
 
 export interface MiddlewareModule<State = any> {
@@ -331,8 +335,8 @@ export interface Manifest {
  */
 export type ServerHandler = (
   request: Request,
-  connInfo?: ServerConnInfo,
- ) => Response | Promise<Response>;
+  connInfo?: ServerConnInfo
+) => Response | Promise<Response>;
 
 /**
  * Information about the connection a request arrived on.

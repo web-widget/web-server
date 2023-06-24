@@ -5,7 +5,12 @@ import { html } from "./html.js";
 export { render } from "./html.js";
 
 function style(style: Record<string, string | number>) {
-  return Object.entries(style).map(([k, v]) => `${k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`)}:${v}`).join(';')
+  return Object.entries(style)
+    .map(
+      ([k, v]) =>
+        `${k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}:${v}`
+    )
+    .join(";");
 }
 
 export default function DefaultErrorPage(props: ErrorComponentProps) {
@@ -20,36 +25,43 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
     }
   }
 
-  return html`
-    <div style="${style({
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          })}">
-      <div style="${style({
-              border: "#f3f4f6 2px solid",
-              borderTop: "red 4px solid",
-              background: "#f9fafb",
-              margin: 16,
-              minWidth: "300px",
-              width: "50%",
+  return html` <div
+    style="${style({
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    })}">
+    <div
+      style="${style({
+        border: "#f3f4f6 2px solid",
+        borderTop: "red 4px solid",
+        background: "#f9fafb",
+        margin: 16,
+        minWidth: "300px",
+        width: "50%",
       })}">
-        <p style="${style({
-              margin: 0,
-              fontSize: "12pt",
-              padding: 16,
-              fontFamily: "sans-serif",
+      <p
+        style="${style({
+          margin: 0,
+          fontSize: "12pt",
+          padding: 16,
+          fontFamily: "sans-serif",
         })}">
-          An error occurred during route handling or page rendering.
-        </p>
-        ${message ? html`<pre style="${style({
+        An error occurred during route handling or page rendering.
+      </p>
+      ${message
+        ? html`<pre
+            style="${style({
               margin: 0,
               fontSize: "12pt",
               overflowY: "auto",
               padding: 16,
               paddingTop: 0,
               fontFamily: "monospace",
-            })}">${message}</pre>`: ``}
-      </div>
-    </div>`;
+            })}">
+${message}</pre
+          >`
+        : ``}
+    </div>
+  </div>`;
 }

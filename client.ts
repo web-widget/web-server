@@ -1,1 +1,1 @@
-export * from "./src/client/mod.js"
+export * from "./src/client/mod.js";

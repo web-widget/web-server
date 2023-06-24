@@ -103,7 +103,7 @@ export async function internalRender<Data>(
     crypto.randomUUID(),
     opts.url,
     opts.route.pathname,
-    opts.lang ?? "en",
+    opts.lang ?? "en"
   );
 
   if (csp) {
@@ -129,7 +129,7 @@ export async function internalRender<Data>(
 
   if (!outlet) {
     throw new Error(
-      `The 'render' function was not called by route's render hook.`,
+      `The 'render' function was not called by route's render hook.`
     );
   }
 
@@ -139,7 +139,7 @@ export async function internalRender<Data>(
     const randomNonce = crypto.randomUUID().replace(/-/g, "");
     if (csp) {
       csp.directives.scriptSrc = [
-        ...csp.directives.scriptSrc ?? [],
+        ...(csp.directives.scriptSrc ?? []),
         nonce(randomNonce),
       ];
     }
@@ -157,7 +157,8 @@ export async function internalRender<Data>(
       // TODO
       meta: [],
       // TODO
-      esModulePolyfillUrl: "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
+      esModulePolyfillUrl:
+        "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
       // TODO
       importmap: {},
       // TODO
@@ -173,4 +174,3 @@ export async function internalRender<Data>(
 
   return [html, csp];
 }
-

@@ -6,12 +6,12 @@ type HandlerContext<T = unknown> = T & ServerConnInfo;
 
 export type Handler<T = unknown> = (
   req: Request,
-  ctx: HandlerContext<T>,
+  ctx: HandlerContext<T>
 ) => Response | Promise<Response>;
 
 export type FinalHandler<T = unknown> = (
   req: Request,
-  ctx: HandlerContext<T>,
+  ctx: HandlerContext<T>
 ) => {
   destination: DestinationKind;
   handler: () => Response | Promise<Response>;
@@ -20,19 +20,19 @@ export type FinalHandler<T = unknown> = (
 export type ErrorHandler<T = unknown> = (
   req: Request,
   ctx: HandlerContext<T>,
-  err: unknown,
+  err: unknown
 ) => Response | Promise<Response>;
 
 type UnknownMethodHandler<T = unknown> = (
   req: Request,
   ctx: HandlerContext<T>,
-  knownMethods: KnownMethod[],
+  knownMethods: KnownMethod[]
 ) => Response | Promise<Response>;
 
 export type MatchHandler<T = unknown> = (
   req: Request,
   ctx: HandlerContext<T>,
-  match: Record<string, string>,
+  match: Record<string, string>
 ) => Response | Promise<Response>;
 
 export interface Routes<T = {}> {
@@ -77,7 +77,7 @@ export function defaultOtherHandler(_req: Request): Response {
 export function defaultErrorHandler(
   _req: Request,
   _ctx: HandlerContext,
-  err: unknown,
+  err: unknown
 ): Response {
   console.error(err);
 
@@ -89,7 +89,7 @@ export function defaultErrorHandler(
 export function defaultUnknownMethodHandler(
   _req: Request,
   _ctx: HandlerContext,
-  knownMethods: KnownMethod[],
+  knownMethods: KnownMethod[]
 ): Response {
   return new Response(null, {
     status: 405,
@@ -102,7 +102,7 @@ export function defaultUnknownMethodHandler(
 function processRoutes<T>(
   processedRoutes: InternalRoute<T>[],
   routes: Routes<T>,
-  destination: DestinationKind,
+  destination: DestinationKind
 ) {
   for (const [path, methods] of Object.entries(routes)) {
     const entry: InternalRoute<T> = {
@@ -124,14 +124,12 @@ function processRoutes<T>(
   }
 }
 
-export function router<T = unknown>(
-  {
-    internalRoutes,
-    routes,
-    otherHandler,
-    unknownMethodHandler,
-  }: RouterOptions<T>,
-): FinalHandler<T> {
+export function router<T = unknown>({
+  internalRoutes,
+  routes,
+  otherHandler,
+  unknownMethodHandler,
+}: RouterOptions<T>): FinalHandler<T> {
   unknownMethodHandler ??= defaultUnknownMethodHandler;
 
   const processedRoutes: InternalRoute<T>[] = [];
@@ -180,7 +178,7 @@ export function router<T = unknown>(
               unknownMethodHandler!(
                 req,
                 ctx,
-                Object.keys(route.methods) as KnownMethod[],
+                Object.keys(route.methods) as KnownMethod[]
               ),
           };
         }
