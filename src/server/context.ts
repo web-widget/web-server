@@ -1,12 +1,12 @@
 /// <reference types="urlpattern-polyfill" />
 
-import { Status } from "./http_status.js";
+import { Status } from "./status.js";
 import * as router from "./router.js";
 import { Manifest, ServerHandler, ServerConnInfo } from "./types.js";
 import {
   default as DefaultErrorComponent,
   render as DefaultRender,
-} from "./default_error_page.js";
+} from "./default-error-page.js";
 import {
   ErrorPage,
   ErrorPageModule,
