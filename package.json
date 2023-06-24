@@ -16,7 +16,10 @@
       "default": "./dist/client/mod.js"
     }
   },
-  "sideEffects": ["./dist/client/mod.js", "./client.ts"],
+  "sideEffects": [
+    "./dist/client/mod.js",
+    "./client.ts"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -26,8 +29,10 @@
     "index.ts",
     "client.ts"
   ],
+  "peerDependencies": {
+    "@web-widget/web-widget": "workspace:*"
+  },
   "dependencies": {
-    "@web-widget/web-widget": "workspace:*",
     "@worker-tools/html": "^2.0.0-pre.13",
     "whatwg-stream-to-async-iter": "^0.6.2"
   },

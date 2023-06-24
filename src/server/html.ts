@@ -93,7 +93,7 @@ export async function render(
     throw new Error("Async components are not supported.");
   }
 
-  if (opts.container) {
+  if (Reflect.has(opts, "container") || Reflect.has(opts, "recovering")) {
     throw new Error("Client rendering is not supported.");
   }
 

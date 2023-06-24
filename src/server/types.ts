@@ -3,6 +3,13 @@
 import * as router from "./router.js";
 import { InnerRenderFunction, InnerRenderContext } from "./render.js";
 
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | { [x: string]: JSONValue }
+  | Array<JSONValue>;
+
 // --- APPLICATION CONFIGURATION ---
 
 export type StartOptions = WebServerOptions & {
@@ -18,7 +25,7 @@ export type RenderPage = (
   render: InnerRenderFunction
 ) => void | Promise<void>;
 
-/// --- ROUTES ---
+/// --- ROUTES & ISLANDS ---
 
 export interface ComponentProps<Data> {
   /** The URL of the request that resulted in this page being rendered. */
@@ -112,7 +119,7 @@ export interface RouteRenderContext<Data = any> {
   component?: any;
 }
 
-export interface IslandRenderContext<Data = any> {
+export interface IslandRenderContext<Data = JSONValue> {
   /**
    * Props of a component.
    */
@@ -127,16 +134,6 @@ export interface IslandRenderContext<Data = any> {
    * This is a component of the UI framework.
    */
   component?: any;
-
-  /**
-   * This is a render container element that exists only on the client side.
-   */
-  container?: Element;
-
-  /**
-   * This is the flag for client hydration mode.
-   */
-  recovering?: boolean;
 }
 
 export interface RenderContext<Data = any>
@@ -147,7 +144,7 @@ export type Render<Data = unknown> = (
   renderContext: RenderContext<Data>
 ) => Promise<RenderResult>;
 
-export type RenderResult = string | ReadableStream | void;
+export type RenderResult = string | ReadableStream;
 
 export interface RouteModule {
   default?: any;
