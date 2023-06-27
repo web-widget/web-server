@@ -16,6 +16,7 @@
       "default": "./dist/client.js"
     }
   },
+  "types": "./dist/server.d.ts",
   "publishConfig": {
     "access": "public"
   },
