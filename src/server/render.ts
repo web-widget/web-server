@@ -24,7 +24,8 @@ export type InnerRenderFunction = () => Promise<RenderResult>;
 export class InnerRenderContext {
   #id: string;
   #state: Map<string, unknown> = new Map();
-  #styles: string[] = [];
+  #styles: string[] | Record<string, string>[] = [];
+  #importmap: Record<string, any> = {};
   #url: URL;
   #route: string;
   #lang: string;
@@ -56,7 +57,7 @@ export class InnerRenderContext {
    * suspense!). The CSS rules will always be inserted on the client in the
    * order specified here.
    */
-  get styles(): string[] {
+  get styles(): string[] | Record<string, string>[] {
     return this.#styles;
   }
 
@@ -77,6 +78,10 @@ export class InnerRenderContext {
   }
   set lang(lang: string) {
     this.#lang = lang;
+  }
+
+  get importmap() {
+    return this.#importmap;
   }
 }
 
@@ -133,18 +138,18 @@ export async function internalRender<Data>(
     );
   }
 
-  const moduleScripts: [string, string][] = [];
+  // const moduleScripts: [string, string][] = [];
 
-  for (const url of opts.imports) {
-    const randomNonce = crypto.randomUUID().replace(/-/g, "");
-    if (csp) {
-      csp.directives.scriptSrc = [
-        ...(csp.directives.scriptSrc ?? []),
-        nonce(randomNonce),
-      ];
-    }
-    moduleScripts.push([url, randomNonce]);
-  }
+  // for (const url of opts.imports) {
+  //   const randomNonce = crypto.randomUUID().replace(/-/g, "");
+  //   if (csp) {
+  //     csp.directives.scriptSrc = [
+  //       ...(csp.directives.scriptSrc ?? []),
+  //       nonce(randomNonce),
+  //     ];
+  //   }
+  //   moduleScripts.push([url, randomNonce]);
+  // }
 
   const layoutContext: RenderContext = {
     url: opts.url,
@@ -152,19 +157,13 @@ export async function internalRender<Data>(
     params: opts.params,
     data: {
       outlet,
-      // TODO
       clientEntry: "@web-widget/web-server/client",
       // TODO
       meta: [],
-      // TODO
       esModulePolyfillUrl:
         "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
-      // TODO
-      importmap: {},
-      // TODO
-      moduleScripts,
-      // TODO
-      styles: [],
+      importmap: ctx.importmap,
+      styles: ctx.styles,
       lang: ctx.lang,
     },
     component: layout.default,

@@ -1,11 +1,10 @@
 import {
   html,
+  attributes,
   unsafeHTML,
   HTML,
   streamToHTML,
-  htmlEscapeJsonString,
-  unsafeAttributeName,
-  unsafeAttributeValue,
+  jsonContent,
 } from "./html";
 import { Meta, RenderResult, ComponentProps } from "./types";
 
@@ -30,16 +29,7 @@ function AppMeta(meta: Meta[]) {
         );
         return null;
       }
-      return unsafeHTML(
-        `<${tagName} ${Object.entries(metaProps)
-          .map(
-            ([attrName, attrValue]) =>
-              `${unsafeAttributeName(attrName)}="${unsafeAttributeValue(
-                String(attrValue)
-              )}"`
-          )
-          .join(" ")} />`
-      );
+      return unsafeHTML(`<${tagName} ${attributes(metaProps)} />`);
     }
 
     if ("title" in metaProps) {
@@ -65,34 +55,23 @@ function AppMeta(meta: Meta[]) {
       return (
         json != null &&
         html`<script type="application/ld+json">
-          ${unsafeHTML(JSON.stringify(metaProps["script:ld+json"]))}
+          ${jsonContent(metaProps["script:ld+json"] as any)}
         </script>`
       );
     }
 
-    return html`<meta
-      ${unsafeHTML(
-        Object.entries(metaProps)
-          .map(
-            ([attrName, attrValue]) =>
-              `${unsafeAttributeName(attrName)}="${unsafeAttributeValue(
-                String(attrValue)
-              )}"`
-          )
-          .join(" ")
-      )} />`;
+    return html`<meta ${attributes(metaProps)} />`;
   });
 }
 
 export interface LayoutData {
-  outlet: RenderResult;
   clientEntry: string;
   esModulePolyfillUrl?: string;
   importmap: Record<string, any>;
   lang: string;
   meta: Meta[];
-  moduleScripts: (readonly [string, string])[];
-  styles: string[];
+  outlet: RenderResult;
+  styles: string[] | Record<string, string>[];
 }
 
 export default function Layout(props: ComponentProps<LayoutData>): HTML {
@@ -104,18 +83,19 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         ${AppMeta(data.meta)}
         <script type="importmap">
-          ${unsafeHTML(htmlEscapeJsonString(JSON.stringify(data.importmap)))}
+          ${jsonContent(data.importmap)}
         </script>
-        ${data.styles.map(
-          (style) =>
-            html`<style>
-              ${style}
-            </style>`
-        )}
-        ${data.moduleScripts.map(
-          ([src, nonce]) =>
-            html`<script src="${src}" nonce=${nonce} type="module"></script>`
-        )}
+        ${data.styles.map((props) => {
+          if (typeof props === "string") {
+            return html`<style>
+              ${props}
+            </style>`;
+          }
+          const { textContent, ...attrs } = props;
+          return html`<style ${attributes(attrs)}>
+            ${textContent || ""}
+          </style>`;
+        })}
       </head>
       <body>
         ${typeof data.outlet === "string"

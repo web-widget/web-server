@@ -43,6 +43,21 @@ export const unsafeAttributeName = (value: string) =>
 export const unsafeAttributeValue = (value: string) =>
   value.replace(/"/g, "&quot;");
 
+export const attributes = (attrs: Record<string, string | unknown>) =>
+  unsafeHTML(
+    Object.entries(attrs)
+      .map(
+        ([attrName, attrValue]) =>
+          `${unsafeAttributeName(attrName)}="${unsafeAttributeValue(
+            String(attrValue)
+          )}"`
+      )
+      .join(" ")
+  );
+
+export const jsonContent = (json: Record<string, any>) =>
+  unsafeHTML(htmlEscapeJsonString(JSON.stringify(json)));
+
 type ForAwaitable<T> = Iterable<T> | AsyncIterable<T>;
 type Awaitable<T> = T | Promise<T>;
 
