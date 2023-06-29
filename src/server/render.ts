@@ -25,6 +25,7 @@ export class InnerRenderContext {
   #id: string;
   #state: Map<string, unknown> = new Map();
   #styles: string[] | Record<string, string>[] = [];
+  #links: string[] | Record<string, string>[] = [];
   #importmap: Record<string, any> = {};
   #url: URL;
   #route: string;
@@ -59,6 +60,10 @@ export class InnerRenderContext {
    */
   get styles(): string[] | Record<string, string>[] {
     return this.#styles;
+  }
+
+  get links(): string[] | Record<string, string>[] {
+    return this.#links;
   }
 
   /** The URL of the page being rendered. */
@@ -164,6 +169,7 @@ export async function internalRender<Data>(
         "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
       importmap: ctx.importmap,
       styles: ctx.styles,
+      links: ctx.links,
       lang: ctx.lang,
     },
     component: layout.default,
