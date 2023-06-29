@@ -18,6 +18,15 @@ export type StartOptions = WebServerOptions & {
 
 export interface WebServerOptions {
   render?: RenderPage;
+  router?: RouterOptions;
+}
+
+export interface RouterOptions {
+  /**
+   *  Controls whether Fresh will append a trailing slash to the URL.
+   *  @default {false}
+   */
+  trailingSlash?: boolean;
 }
 
 export type RenderPage = (

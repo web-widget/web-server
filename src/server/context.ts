@@ -21,6 +21,7 @@ import {
   RouteModule,
   UnknownPage,
   UnknownPageModule,
+  RouterOptions,
 } from "./types";
 import { internalRender } from "./render";
 import { ContentSecurityPolicyDirectives, SELF } from "./csp";
@@ -35,6 +36,7 @@ export class ServerContext {
   #middlewares: MiddlewareRoute[];
   #notFound: UnknownPage;
   #error: ErrorPage;
+  #routerOptions: RouterOptions;
 
   constructor(
     routes: Route[],
@@ -42,7 +44,8 @@ export class ServerContext {
     middlewares: MiddlewareRoute[],
     notFound: UnknownPage,
     error: ErrorPage,
-    dev: boolean
+    dev: boolean,
+    routerOptions: RouterOptions
   ) {
     this.#routes = routes;
     this.#renderPage = renderPage;
@@ -50,6 +53,7 @@ export class ServerContext {
     this.#notFound = notFound;
     this.#error = error;
     this.#dev = dev;
+    this.#routerOptions = routerOptions;
   }
 
   /**
@@ -158,7 +162,8 @@ export class ServerContext {
       middlewares,
       notFound,
       error,
-      dev
+      dev,
+      opts.router ?? DEFAULT_ROUTER_OPTIONS
     );
   }
 
@@ -173,6 +178,7 @@ export class ServerContext {
       this.#middlewares,
       handlers.errorHandler
     );
+    const trailingSlashEnabled = this.#routerOptions?.trailingSlash;
     return async function handler(
       req: Request,
       connInfo: ServerConnInfo = {}
@@ -181,7 +187,11 @@ export class ServerContext {
       // slash counterpart.
       // Ex: /about/ -> /about
       const url = new URL(req.url);
-      if (url.pathname.length > 1 && url.pathname.endsWith("/")) {
+      if (
+        url.pathname.length > 1 &&
+        url.pathname.endsWith("/") &&
+        !trailingSlashEnabled
+      ) {
         // Remove trailing slashes
         const path = url.pathname.replace(/\/+$/, "");
         const location = `${path}${url.search}`;
@@ -189,6 +199,8 @@ export class ServerContext {
           status: Status.TemporaryRedirect,
           headers: { location },
         });
+      } else if (trailingSlashEnabled && !url.pathname.endsWith("/")) {
+        return Response.redirect(url.href + "/", Status.PermanentRedirect);
       }
 
       return await withMiddlewares(req, connInfo, inner);
@@ -383,6 +395,10 @@ export class ServerContext {
 
 const DEFAULT_RENDER_FN: RenderPage = async (_ctx, render) => {
   await render();
+};
+
+const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
+  trailingSlash: false,
 };
 
 const DEFAULT_NOT_FOUND: UnknownPage = {
