@@ -72,6 +72,7 @@ export interface LayoutData {
   meta: Meta[];
   outlet: RenderResult;
   styles: string[] | Record<string, string>[];
+  links: string[] | Record<string, string>[];
 }
 
 export default function Layout(props: ComponentProps<LayoutData>): HTML {
@@ -85,6 +86,13 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
         <script type="importmap">
           ${jsonContent(data.importmap)}
         </script>
+        ${data.links.map((props) => {
+          if (typeof props === "string") {
+            return html`<link href="${props}"/>`;
+          }
+          const { textContent, ...attrs } = props;
+          return html`<link ${attributes(attrs)}/>`;
+        })}
         ${data.styles.map((props) => {
           if (typeof props === "string") {
             return html`<style>
