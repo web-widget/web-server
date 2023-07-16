@@ -304,24 +304,20 @@ export interface Middleware<State = Record<string, unknown>> {
 
 export interface Manifest {
   routes: {
-    file: string;
     name: string;
     pathname: string;
     module: RouteModule;
   }[];
   middlewares: {
-    file: string;
     pathname: string;
     module: MiddlewareModule;
   }[];
   notFound?: {
-    file: string;
     name: string;
     pathname: string;
     module: UnknownPageModule;
   };
   error?: {
-    file: string;
     name: string;
     pathname: string;
     module: ErrorPageModule;

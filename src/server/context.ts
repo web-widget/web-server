@@ -69,15 +69,11 @@ export class ServerContext {
     const middlewares: MiddlewareRoute[] = [];
     let notFound: UnknownPage = DEFAULT_NOT_FOUND;
     let error: ErrorPage = DEFAULT_ERROR;
-    for (const { pathname, file, name, module } of manifest.routes) {
+    for (const { pathname, name, module } of manifest.routes) {
       const { default: component, render, config } = module as RouteModule;
       let { handler } = module as RouteModule;
       handler ??= {};
-      if (
-        component &&
-        typeof handler === "object" &&
-        handler.GET === undefined
-      ) {
+      if (typeof handler === "object" && handler.GET === undefined) {
         handler.GET = (_req, { render }) => render({});
       }
       if (
@@ -116,7 +112,7 @@ export class ServerContext {
       });
     }
     if (manifest.notFound) {
-      const { pathname, name, file, module } = manifest.notFound;
+      const { pathname, name, module } = manifest.notFound;
       const {
         default: component,
         render,
@@ -137,7 +133,7 @@ export class ServerContext {
       };
     }
     if (manifest.error) {
-      const { pathname, name, file, module } = manifest.error;
+      const { pathname, name, module } = manifest.error;
       const { default: component, render, config } = module as ErrorPageModule;
       let { handler } = module as ErrorPageModule;
       if (component && handler === undefined) {

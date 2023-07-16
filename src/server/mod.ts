@@ -1,9 +1,17 @@
 import { ServerContext } from "./context";
 export { Status } from "./status";
-import { StartOptions, Manifest } from "./types";
+import type { StartOptions, Manifest, ServerHandler } from "./types";
 export type * from "./types";
 
-export default function router(manifest: Manifest, opts: StartOptions = {}) {
+export type Router = {
+  handler: ServerHandler;
+  handleEvent: (event: FetchEvent) => void;
+};
+
+export default function router(
+  manifest: Manifest,
+  opts: StartOptions = {}
+): Router {
   const ctx = ServerContext.fromManifest(manifest, opts, !!opts.dev);
   const handler = ctx.handler();
   return {
