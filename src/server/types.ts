@@ -34,7 +34,7 @@ export type RenderPage = (
   render: InnerRenderFunction
 ) => void | Promise<void>;
 
-/// --- ROUTES & ISLANDS ---
+/// --- ROUTES & WIDGET ---
 
 export interface ComponentProps<Data> {
   /** The URL of the request that resulted in this page being rendered. */
@@ -128,7 +128,7 @@ export interface RouteRenderContext<Data = any> {
   component?: any;
 }
 
-export interface IslandRenderContext<Data = JSONValue> {
+export interface WidgetRenderContext<Data = JSONValue> {
   /**
    * Props of a component.
    */
@@ -147,7 +147,7 @@ export interface IslandRenderContext<Data = JSONValue> {
 
 export interface RenderContext<Data = any>
   extends RouteRenderContext<Data>,
-    IslandRenderContext<Data> {}
+    WidgetRenderContext<Data> {}
 
 export type Render<Data = unknown> = (
   renderContext: RenderContext<Data>

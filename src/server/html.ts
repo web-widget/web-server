@@ -112,8 +112,8 @@ export async function render(
     throw new Error("Client rendering is not supported.");
   }
 
-  const isIsland = !opts.url;
-  const props = isIsland
+  const isWidget = !opts.url;
+  const props = isWidget
     ? opts.data
     : ({
         params: opts.params,
