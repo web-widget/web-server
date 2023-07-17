@@ -25,7 +25,7 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
     }
   }
 
-  return html` <div
+  return html`<div
     style="${style({
       display: "flex",
       justifyContent: "center",
