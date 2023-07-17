@@ -1,4 +1,4 @@
-import * as layout from "./default-layout";
+import * as layout from "./layout.default";
 import type {
   ErrorPage,
   RenderPage,

@@ -6,7 +6,7 @@ import { Manifest, ServerHandler, ServerConnInfo } from "./types";
 import {
   default as DefaultErrorComponent,
   render as DefaultRender,
-} from "./default-error-page";
+} from "./error.default";
 import {
   ErrorPage,
   ErrorPageModule,
