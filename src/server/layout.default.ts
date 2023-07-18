@@ -88,10 +88,10 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
         </script>
         ${data.links.map((props) => {
           if (typeof props === "string") {
-            return html`<link href="${props}"/>`;
+            return html`<link href="${props}" />`;
           }
           const { textContent, ...attrs } = props;
-          return html`<link ${attributes(attrs)}/>`;
+          return html`<link ${attributes(attrs)} />`;
         })}
         ${data.styles.map((props) => {
           if (typeof props === "string") {
