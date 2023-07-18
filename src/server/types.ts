@@ -78,8 +78,15 @@ export interface RouteConfig {
 
 export interface HandlerContext<Data = unknown, State = Record<string, unknown>>
   extends ServerConnInfo {
+  meta: Meta[];
   params: Record<string, string>;
-  render: ({ data }: { data?: Data }) => Response | Promise<Response>;
+  render: (
+    userRenderContext: {
+      data?: Data;
+      meta?: Meta[];
+    },
+    options?: ResponseInit
+  ) => Response | Promise<Response>;
   renderNotFound: () => Response | Promise<Response>;
   state: State;
 }
@@ -116,6 +123,11 @@ export interface RouteRenderContext<Data = any> {
    * `undefined`.
    */
   data: Data;
+
+  /**
+   * Add tags such as meta to the page. Defaults to `[]`.
+   */
+  meta: Meta[];
 
   /**
    * The error that caused the error page to be loaded.
@@ -156,19 +168,21 @@ export type Render<Data = unknown> = (
 export type RenderResult = string | ReadableStream;
 
 export interface RouteModule {
+  config?: RouteConfig;
   default?: any;
   handler?: Handler<unknown> | Handlers<unknown>;
+  meta?: Meta[];
   render: Render<unknown>;
-  config?: RouteConfig;
 }
 
 export interface Route<Data = any> {
-  pathname: string;
-  name: string;
   component?: any;
-  handler: Handler<Data> | Handlers<Data>;
-  render: Render<Data>;
   csp: boolean;
+  handler: Handler<Data> | Handlers<Data>;
+  meta: Meta[];
+  name: string;
+  pathname: string;
+  render: Render<Data>;
 }
 
 export type Meta =
@@ -201,7 +215,13 @@ export interface UnknownComponentProps {
 
 export interface UnknownHandlerContext<State = Record<string, unknown>>
   extends ServerConnInfo {
-  render: () => Response | Promise<Response>;
+  meta: Meta[];
+  render: (
+    userRenderContext: {
+      meta?: Meta[];
+    },
+    options?: ResponseInit
+  ) => Response | Promise<Response>;
   state: State;
 }
 
@@ -211,19 +231,21 @@ export type UnknownHandler = (
 ) => Response | Promise<Response>;
 
 export interface UnknownPageModule {
+  config?: RouteConfig;
   default?: any;
   handler?: UnknownHandler;
+  meta?: Meta[];
   render: Render;
-  config?: RouteConfig;
 }
 
 export interface UnknownPage {
-  pathname: string;
-  name: string;
   component?: any;
-  handler: UnknownHandler;
-  render: Render;
   csp: boolean;
+  handler: UnknownHandler;
+  meta: Meta[];
+  name: string;
+  pathname: string;
+  render: Render;
 }
 
 // --- ERROR PAGE ---
@@ -242,8 +264,14 @@ export interface ErrorComponentProps {
 
 export interface ErrorHandlerContext<State = Record<string, unknown>>
   extends ServerConnInfo {
+  meta: Meta[];
   error: unknown;
-  render: () => Response | Promise<Response>;
+  render: (
+    userRenderContext: {
+      meta?: Meta[];
+    },
+    options?: ResponseInit
+  ) => Response | Promise<Response>;
   state: State;
 }
 export type ErrorHandler = (
@@ -252,19 +280,21 @@ export type ErrorHandler = (
 ) => Response | Promise<Response>;
 
 export interface ErrorPageModule {
+  config?: RouteConfig;
   default?: any;
   handler?: ErrorHandler;
+  meta?: Meta[];
   render: Render;
-  config?: RouteConfig;
 }
 
 export interface ErrorPage {
-  pathname: string;
-  name: string;
   component?: any;
-  handler: ErrorHandler;
-  render: Render;
   csp: boolean;
+  handler: ErrorHandler;
+  meta: Meta[];
+  name: string;
+  pathname: string;
+  render: Render;
 }
 
 // --- MIDDLEWARES ---

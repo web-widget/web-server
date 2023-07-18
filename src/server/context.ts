@@ -2,7 +2,7 @@
 
 import { Status } from "./status";
 import * as router from "./router";
-import { Manifest, ServerHandler, ServerConnInfo } from "./types";
+import { Manifest, ServerHandler, ServerConnInfo, Meta } from "./types";
 import {
   default as DefaultErrorComponent,
   render as DefaultRender,
@@ -44,16 +44,18 @@ export class ServerContext {
     middlewares: MiddlewareRoute[],
     notFound: UnknownPage,
     error: ErrorPage,
-    dev: boolean,
-    routerOptions: RouterOptions
+    routerOptions: RouterOptions,
+    dev: boolean
   ) {
     this.#routes = routes;
     this.#renderPage = renderPage;
     this.#middlewares = middlewares;
     this.#notFound = notFound;
     this.#error = error;
-    this.#dev = dev;
     this.#routerOptions = routerOptions;
+    this.#dev = dev;
+
+    deepFreeze(this);
   }
 
   /**
@@ -70,11 +72,15 @@ export class ServerContext {
     let notFound: UnknownPage = DEFAULT_NOT_FOUND;
     let error: ErrorPage = DEFAULT_ERROR;
     for (const { pathname, name, module } of manifest.routes) {
-      const { default: component, render, config } = module as RouteModule;
-      let { handler } = module as RouteModule;
-      handler ??= {};
+      const {
+        config = {},
+        default: component,
+        handler = {},
+        meta = [],
+        render,
+      } = module as RouteModule;
       if (typeof handler === "object" && handler.GET === undefined) {
-        handler.GET = (_req, { render }) => render({});
+        handler.GET = (_req, { render }) => render({ meta });
       }
       if (
         typeof handler === "object" &&
@@ -92,17 +98,17 @@ export class ServerContext {
           });
         };
       }
-      const route: Route = {
-        pathname: config?.routeOverride
+      routes.push({
+        component,
+        csp: Boolean(config.csp ?? false),
+        handler,
+        meta,
+        name,
+        pathname: config.routeOverride
           ? String(config.routeOverride)
           : pathname,
-        name,
-        component,
-        handler,
         render,
-        csp: Boolean(config?.csp ?? false),
-      };
-      routes.push(route);
+      });
     }
     for (const { pathname, module } of manifest.middlewares) {
       middlewares.push({
@@ -116,11 +122,12 @@ export class ServerContext {
       const {
         default: component,
         render,
-        config,
+        config = {},
+        meta = [],
       } = module as UnknownPageModule;
       let { handler } = module as UnknownPageModule;
       if (component && handler === undefined) {
-        handler = (_req, { render }) => render();
+        handler = (_req, { render }) => render({ meta });
       }
 
       notFound = {
@@ -128,27 +135,34 @@ export class ServerContext {
         name,
         component,
         handler: handler ?? ((req) => router.defaultOtherHandler(req)),
+        meta,
         render,
-        csp: Boolean(config?.csp ?? false),
+        csp: Boolean(config.csp ?? false),
       };
     }
     if (manifest.error) {
       const { pathname, name, module } = manifest.error;
-      const { default: component, render, config } = module as ErrorPageModule;
+      const {
+        config = {},
+        default: component,
+        meta = [],
+        render,
+      } = module as ErrorPageModule;
       let { handler } = module as ErrorPageModule;
       if (component && handler === undefined) {
-        handler = (_req, { render }) => render();
+        handler = (_req, { render }) => render({ meta });
       }
 
       error = {
-        pathname,
-        name,
         component,
+        csp: Boolean(config.csp ?? false),
         handler:
           handler ??
           ((req, ctx) => router.defaultErrorHandler(req, ctx, ctx.error)),
+        meta,
+        name,
+        pathname,
         render,
-        csp: Boolean(config?.csp ?? false),
       };
     }
 
@@ -158,8 +172,8 @@ export class ServerContext {
       middlewares,
       notFound,
       error,
-      dev,
-      opts.router ?? DEFAULT_ROUTER_OPTIONS
+      opts.router ?? DEFAULT_ROUTER_OPTIONS,
+      dev
     );
   }
 
@@ -279,19 +293,25 @@ export class ServerContext {
         error?: unknown
       ) => {
         return async (
-          { data }: { data?: any } = {},
+          {
+            data,
+            meta = [],
+          }: {
+            data?: any;
+            meta?: Meta[];
+          } = {},
           options?: ResponseInit
         ) => {
           // const preloads: string[] = [];
-
           const [body, csp] = await internalRender(
             {
-              route,
-              imports,
-              url: new URL(req.url),
-              params,
               data,
               error,
+              imports,
+              meta,
+              params,
+              route,
+              url: new URL(req.url),
             },
             this.#renderPage
           );
@@ -329,12 +349,14 @@ export class ServerContext {
     const createUnknownRender = genRender(this.#notFound, Status.NotFound);
 
     for (const route of this.#routes) {
+      const meta = route.meta;
       const createRender = genRender(route, Status.OK);
       if (typeof route.handler === "function") {
         routes[route.pathname] = {
           default: (req, ctx, params) =>
             (route.handler as Handler)(req, {
               ...ctx,
+              meta,
               params,
               render: createRender(req, params),
               renderNotFound: createUnknownRender(req, {}),
@@ -350,6 +372,7 @@ export class ServerContext {
           ) =>
             handler(req, {
               ...ctx,
+              meta,
               params,
               render: createRender(req, params),
               renderNotFound: createUnknownRender(req, {}),
@@ -361,6 +384,7 @@ export class ServerContext {
     const otherHandler: router.Handler<RouterState> = (req, ctx) =>
       this.#notFound.handler(req, {
         ...ctx,
+        meta: this.#notFound.meta,
         render: createUnknownRender(req, {}),
       });
 
@@ -381,6 +405,7 @@ export class ServerContext {
       return this.#error.handler(req, {
         ...ctx,
         error,
+        meta: this.#error.meta,
         render: errorHandlerRender(req, {}, error),
       });
     };
@@ -398,20 +423,22 @@ const DEFAULT_ROUTER_OPTIONS: RouterOptions = {
 };
 
 const DEFAULT_NOT_FOUND: UnknownPage = {
-  pathname: "",
-  name: "_404",
-  handler: (req) => router.defaultOtherHandler(req),
-  render: DefaultRender,
   csp: false,
+  handler: (req) => router.defaultOtherHandler(req),
+  meta: [],
+  name: "_404",
+  pathname: "",
+  render: DefaultRender,
 };
 
 const DEFAULT_ERROR: ErrorPage = {
-  pathname: "",
-  name: "_500",
   component: DefaultErrorComponent,
-  render: DefaultRender,
-  handler: (_req, ctx) => ctx.render(),
   csp: false,
+  handler: (_req, ctx) => ctx.render({ meta: [] }),
+  meta: [],
+  name: "_500",
+  pathname: "",
+  render: DefaultRender,
 };
 
 /**
@@ -443,4 +470,25 @@ function serializeCSPDirectives(csp: ContentSecurityPolicyDirectives): string {
       return `${key} ${value}`;
     })
     .join("; ");
+}
+
+function deepFreeze(object: any) {
+  Object.freeze(object);
+
+  // Retrieve the property names defined on object
+  const propNames = Reflect.ownKeys(object);
+
+  // Freeze properties before freezing self
+  for (const name of propNames) {
+    const value = object[name];
+
+    if (
+      ((value && typeof value === "object") || typeof value === "function") &&
+      !Object.isFrozen(value)
+    ) {
+      deepFreeze(value);
+    }
+  }
+
+  return object;
 }

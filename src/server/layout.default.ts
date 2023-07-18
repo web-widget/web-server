@@ -65,11 +65,11 @@ function AppMeta(meta: Meta[]) {
 }
 
 export interface LayoutData {
+  meta: Meta[];
   clientEntry: string;
   esModulePolyfillUrl?: string;
   importmap: Record<string, any>;
   lang: string;
-  meta: Meta[];
   outlet: RenderResult;
   styles: string[] | Record<string, string>[];
   links: string[] | Record<string, string>[];
