@@ -65,11 +65,11 @@ function AppMeta(meta: Meta[]) {
 }
 
 export interface LayoutData {
+  meta: Meta[];
   clientEntry: string;
   esModulePolyfillUrl?: string;
   importmap: Record<string, any>;
   lang: string;
-  meta: Meta[];
   outlet: RenderResult;
   styles: string[] | Record<string, string>[];
   links: string[] | Record<string, string>[];
@@ -88,10 +88,10 @@ export default function Layout(props: ComponentProps<LayoutData>): HTML {
         </script>
         ${data.links.map((props) => {
           if (typeof props === "string") {
-            return html`<link href="${props}"/>`;
+            return html`<link href="${props}" />`;
           }
           const { textContent, ...attrs } = props;
-          return html`<link ${attributes(attrs)}/>`;
+          return html`<link ${attributes(attrs)} />`;
         })}
         ${data.styles.map((props) => {
           if (typeof props === "string") {

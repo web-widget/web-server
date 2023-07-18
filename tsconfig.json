@@ -3,7 +3,7 @@
     "src/**/*"
   ],
   "exclude": [
-    "src/dev/**/*",
+    ".backup/**/*",
     "tsup.config.ts",
     "node_modules"
   ],
@@ -17,7 +17,7 @@
       "WebWorker"
     ],
     "composite": false,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "strict": true,
     "declaration": true,
     "rootDir": "./src",

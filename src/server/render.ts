@@ -1,41 +1,45 @@
-import * as layout from "./default-layout";
+import * as layout from "./layout.default";
 import type {
   ErrorPage,
+  Meta,
+  RenderContext,
   RenderPage,
+  RenderResult,
   Route,
   UnknownPage,
-  RenderResult,
-  RenderContext,
 } from "./types";
 import { nonce, NONE, UNSAFE_INLINE, ContentSecurityPolicy } from "./csp";
 
 export interface InnerRenderOptions<Data> {
-  route: Route<Data> | UnknownPage | ErrorPage;
-  imports: string[];
-  url: URL;
-  params: Record<string, string>;
   data?: Data;
   error?: unknown;
+  imports: string[];
   lang?: string;
+  meta: Meta[];
+  params: Record<string, string>;
+  route: Route<Data> | UnknownPage | ErrorPage;
+  url: URL;
 }
 
 export type InnerRenderFunction = () => Promise<RenderResult>;
 
 export class InnerRenderContext {
   #id: string;
+  #importmap: Record<string, any> = {};
+  #lang: string;
+  #links: string[] | Record<string, string>[] = [];
+  #meta: Meta[] = [];
+  #route: string;
   #state: Map<string, unknown> = new Map();
   #styles: string[] | Record<string, string>[] = [];
-  #links: string[] | Record<string, string>[] = [];
-  #importmap: Record<string, any> = {};
   #url: URL;
-  #route: string;
-  #lang: string;
 
-  constructor(id: string, url: URL, route: string, lang: string) {
+  constructor(id: string, url: URL, route: string, lang: string, meta: Meta[]) {
     this.#id = id;
     this.#url = url;
     this.#route = route;
     this.#lang = lang;
+    this.#meta.push(...meta);
   }
 
   /** A unique ID for this logical JIT render. */
@@ -64,6 +68,10 @@ export class InnerRenderContext {
 
   get links(): string[] | Record<string, string>[] {
     return this.#links;
+  }
+
+  get meta(): Meta[] {
+    return this.#meta;
   }
 
   /** The URL of the page being rendered. */
@@ -113,7 +121,8 @@ export async function internalRender<Data>(
     crypto.randomUUID(),
     opts.url,
     opts.route.pathname,
-    opts.lang ?? "en"
+    opts.lang ?? "en",
+    opts.meta
   );
 
   if (csp) {
@@ -126,12 +135,13 @@ export async function internalRender<Data>(
   let outlet: RenderResult | null = null;
   await renderPage(ctx, async () => {
     const renderContext: RenderContext = {
-      url: opts.url,
-      route: opts.route.pathname,
-      params: opts.params,
-      data: opts.data,
       component: opts.route.component,
+      data: opts.data,
       error: opts.error,
+      meta: ctx.meta,
+      params: opts.params,
+      route: opts.route.pathname,
+      url: opts.url,
     };
     outlet = await opts.route.render(renderContext);
     return outlet;
@@ -156,24 +166,25 @@ export async function internalRender<Data>(
   //   moduleScripts.push([url, randomNonce]);
   // }
 
+  const data = {
+    meta: ctx.meta,
+    outlet,
+    clientEntry: "@web-widget/web-server/client",
+    esModulePolyfillUrl:
+      "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
+    importmap: ctx.importmap,
+    styles: ctx.styles,
+    links: ctx.links,
+    lang: ctx.lang,
+  };
   const layoutContext: RenderContext = {
-    url: opts.url,
-    route: opts.route.pathname,
-    params: opts.params,
-    data: {
-      outlet,
-      clientEntry: "@web-widget/web-server/client",
-      // TODO
-      meta: [],
-      esModulePolyfillUrl:
-        "https://ga.jspm.io/npm:es-module-shims@1.7.3/dist/es-module-shims.js",
-      importmap: ctx.importmap,
-      styles: ctx.styles,
-      links: ctx.links,
-      lang: ctx.lang,
-    },
     component: layout.default,
+    data,
     error: null,
+    meta: ctx.meta,
+    params: opts.params,
+    route: opts.route.pathname,
+    url: opts.url,
   };
   const html = await layout.render(layoutContext);
 

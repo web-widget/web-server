@@ -5,7 +5,7 @@ type JSONValue =
   | { [x: string]: JSONValue }
   | Array<JSONValue>;
 
-export type IslandRenderContext<Data = JSONValue> = {
+export type WidgetRenderContext<Data = JSONValue> = {
   /**
    * Props of a component.
    */
@@ -37,7 +37,7 @@ export type IslandRenderContext<Data = JSONValue> = {
   update?: ({ data }: { data: JSONValue }) => Promise<void>;
 };
 
-export type RenderContext<Data> = IslandRenderContext<Data>;
+export type RenderContext<Data> = WidgetRenderContext<Data>;
 
 export type Render<Data = unknown> = (
   renderContext: RenderContext<Data>

@@ -1,8 +1,14 @@
 import { DEBUG } from "./constants";
-import type { ErrorComponentProps } from "./types";
+import type { ErrorComponentProps, Meta } from "./types";
 import { html } from "./html";
 
 export { render } from "./html";
+
+export const meta: Meta[] = [
+  {
+    title: "Error",
+  },
+];
 
 function style(style: Record<string, string | number>) {
   return Object.entries(style)
@@ -25,7 +31,7 @@ export default function DefaultErrorPage(props: ErrorComponentProps) {
     }
   }
 
-  return html` <div
+  return html`<div
     style="${style({
       display: "flex",
       justifyContent: "center",

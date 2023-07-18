@@ -4,13 +4,16 @@ import {
   streamToAsyncIter,
 } from "whatwg-stream-to-async-iter";
 import {
+  ComponentProps,
+  ErrorComponentProps,
+  Handlers,
+  Meta,
   RenderContext,
   RenderResult,
-  ComponentProps,
   UnknownComponentProps,
-  ErrorComponentProps,
 } from "./types";
 
+export type { ComponentProps, Handlers, Meta };
 export { unsafeHTML, fallback, html, HTML, Fallback };
 
 export const streamToHTML = (stream: ReadableStream<string>) =>
@@ -112,15 +115,15 @@ export async function render(
     throw new Error("Client rendering is not supported.");
   }
 
-  const isIsland = !opts.url;
-  const props = isIsland
+  const isWidget = !opts.url;
+  const props = isWidget
     ? opts.data
     : ({
-        params: opts.params,
-        url: opts.url,
-        route: opts.route,
         data: opts.data,
         error: opts.error,
+        params: opts.params,
+        route: opts.route,
+        url: opts.url,
       } as ComponentProps<any> | UnknownComponentProps | ErrorComponentProps);
 
   return stringStreamToByteStream(opts.component(props));

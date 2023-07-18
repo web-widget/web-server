@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm exec tsup --watch",
-    "build": "pnpm exec tsup"
+    "build": "pnpm exec tsup && pnpm run html-minifier",
+    "html-minifier": "babel dist/* --out-dir dist"
   },
   "exports": {
     ".": {
@@ -35,8 +36,12 @@
     "whatwg-stream-to-async-iter": "^0.6.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.22.9",
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.9",
+    "babel-plugin-template-html-minifier": "^4.1.0",
+    "tsup": "^7.0.0",
     "typescript": "^5.0.4",
-    "urlpattern-polyfill": "^9.0.0",
-    "tsup": "^7.0.0"
+    "urlpattern-polyfill": "^9.0.0"
   }
 }
